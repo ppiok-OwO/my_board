@@ -1,12 +1,13 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import UsersRouter from '../routes/users.router.js';
+import UsersRouter from './routes/users.router.js';
 
 const app = express();
 const PORT = 3018;
 
 app.use(express.json());
 app.use(cookieParser());
+
 app.use('/api', [UsersRouter]);
 
 app.listen(PORT, () => {
