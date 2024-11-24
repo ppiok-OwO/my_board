@@ -8,7 +8,6 @@ import authMiddleware from '../middlewares/auth.middleware.js';
 const router = express.Router();
 
 /** 회원가입 API */
-// 💡 **[게시판 프로젝트] 회원가입 API 비즈니스 로직**
 // 1. `email`, `password`, `name`, `age`, `gender`, `profileImage`를 **body**로 전달받습니다.(외부에 노출이 되면 안 되기 때문에)
 // 2. 동일한 `email`을 가진 사용자가 있는지 확인합니다.
 // 3. **Users** 테이블에 `email`, `password`를 이용해 사용자를 생성합니다.
@@ -17,10 +16,10 @@ const router = express.Router();
 router.post('/sign-up', async (req, res, next) => {
   const { email, password, name, age, gender, profileImage } = req.body;
 
+  // 중복되는 이메일이 존재하는지 검사
   const isExitUser = await prisma.users.findFirst({
     where: { email },
   });
-
   if (isExitUser) {
     return res.status(400).json({ message: '이미 존재하는 이메일입니다.' });
   }
@@ -51,8 +50,6 @@ router.post('/sign-up', async (req, res, next) => {
 });
 
 /** 로그인 API */
-// 💡 **[게시판 프로젝트]  로그인 API 비즈니스 로직**
-
 // 1. `email`, `password`를 **body**로 전달받습니다.
 // 2. 전달 받은 `email`에 해당하는 사용자가 있는지 확인합니다.
 // 3. 전달 받은 `password`와 데이터베이스의 저장된 `password`를 bcrypt를 이용해 검증합니다.
@@ -72,7 +69,7 @@ router.post('/sign-in', async (req, res, next) => {
   // 로그인에 성공하면, 사용자의 userId를 바탕으로 토큰을 생성한다.
   const token = jwt.sign({ userId: user.userId }, 'custom-secret-key'); // 데이터와 암호화 키
 
-  // authotization 쿠키에 Bearer 토큰 형식으로 JWT를 저장합니다.
+  // authotization쿠키에 Bearer 토큰을 담아서 유저에게 응답합니다.
   res.cookie('authorization', `Bearer ${token}`);
   return res.status(200).json({ message: '로그인 성공' });
 });
@@ -85,7 +82,7 @@ router.get('/users', authMiddleware, async (req, res, next) => {
   const { userId } = req.user;
 
   const user = await prisma.users.findFirst({
-    where: { userId: +userId },
+    where: { userId: +userId }, // userId가 일치하는 레코드의 필드를 보도록 하겠다.
     select: {
       userId: true,
       email: true,
