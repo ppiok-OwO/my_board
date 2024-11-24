@@ -64,7 +64,7 @@ router.post('/sign-up', async (req, res, next) => {
   }
 });
 
-/** 로그인 API */
+/** Express-Session 로그인 API */
 // 1. `email`, `password`를 **body**로 전달받습니다.
 // 2. 전달 받은 `email`에 해당하는 사용자가 있는지 확인합니다.
 // 3. 전달 받은 `password`와 데이터베이스의 저장된 `password`를 bcrypt를 이용해 검증합니다.
@@ -81,11 +81,9 @@ router.post('/sign-in', async (req, res, next) => {
     return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
   }
 
-  // 로그인에 성공하면, 사용자의 userId를 바탕으로 토큰을 생성한다.
-  const token = jwt.sign({ userId: user.userId }, 'custom-secret-key'); // 데이터와 암호화 키
-
-  // authotization쿠키에 Bearer 토큰을 담아서 유저에게 응답합니다.
-  res.cookie('authorization', `Bearer ${token}`);
+  // 로그인에 성공하면, 사용자의 userId를 바탕으로 세션을 생성합니다.
+  req.session.userId = user.userId;
+  
   return res.status(200).json({ message: '로그인 성공' });
 });
 

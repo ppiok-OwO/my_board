@@ -13,17 +13,8 @@ import { prisma } from '../utils/prisma/index.js';
 
 export default async function (req, res, next) {
   try {
-    const { authorization } = req.cookies;
-    if (!authorization)
-      throw new Error('요청한 사용자의 토큰이 존재하지 않습니다.');
-
-    // 쿠키로 전달된 authorization토큰은 Bearer ${token}의 형식을 가지고 있으므로 구조 분해 할당을 통해 배열의 형태로 변수에 할당해준다.
-    const [tokenType, token] = authorization.split(' ');
-    if (tokenType !== 'Bearer')
-      throw new Error('토큰 타입이 Bearer형식이 아닙니다.');
-
-    const decodedToken = jwt.verify(token, 'custom-secret-key'); // verify에 성공하면 복호화된 데이터가 변수에 할당되고, 실패하면 error가 발생한다.
-    const userId = decodedToken.userId;
+    const { userId } = req.session;
+    if (!userId) throw new Error('로그인이 필요합니다.');
 
     const user = await prisma.users.findFirst({
       where: { userId: +userId },
